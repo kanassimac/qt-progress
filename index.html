@@ -29,16 +29,13 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 0;
     }
 
-    /* ===== 頂部標題 ===== */
     .header {
       background: linear-gradient(135deg, var(--accent-dark), var(--accent));
       color: #fff;
       padding: 28px 20px 22px;
       text-align: center;
-      position: relative;
     }
     .header h1 {
       font-family: 'Noto Serif TC', serif;
@@ -53,7 +50,6 @@
       font-weight: 300;
     }
 
-    /* ===== 導航列 ===== */
     .nav-bar {
       display: flex;
       align-items: center;
@@ -93,10 +89,7 @@
       background: var(--accent-dark);
       border-color: var(--accent-dark);
     }
-    .nav-btn svg {
-      width: 14px; height: 14px;
-      fill: currentColor;
-    }
+    .nav-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
     .date-label {
       font-size: 0.8rem;
@@ -105,10 +98,8 @@
       padding: 6px 0 10px;
     }
 
-    /* ===== 表格 ===== */
-    .table-wrapper {
-      padding: 0 12px 24px;
-    }
+    .table-wrapper { padding: 0 12px 24px; }
+
     .progress-table {
       width: 100%;
       border-collapse: separate;
@@ -127,18 +118,11 @@
       padding: 12px 10px;
       text-align: left;
       border-bottom: 2px solid var(--accent);
-      position: sticky;
-      top: 0;
-      z-index: 2;
     }
     .progress-table thead th:first-child { padding-left: 16px; }
 
-    .progress-table tbody tr {
-      transition: background 0.15s;
-    }
-    .progress-table tbody tr:hover {
-      background: #fafaf7;
-    }
+    .progress-table tbody tr { transition: background 0.15s; }
+    .progress-table tbody tr:hover { background: #fafaf7; }
     .progress-table tbody td {
       padding: 11px 10px;
       font-size: 0.82rem;
@@ -149,7 +133,6 @@
     .progress-table tbody td:first-child { padding-left: 16px; }
     .progress-table tbody tr:last-child td { border-bottom: none; }
 
-    /* 日期欄 */
     .date-cell {
       white-space: nowrap;
       font-weight: 500;
@@ -162,35 +145,17 @@
       font-weight: 400;
     }
 
-    /* 今天高亮 */
-    tr.is-today {
-      background: var(--today-bg) !important;
-    }
-    tr.is-today td {
-      border-bottom-color: #f0e6c0;
-    }
-    tr.is-today .date-cell {
-      color: var(--today-border);
-      font-weight: 600;
-    }
-    tr.is-today .date-cell::before {
-      content: '📖 ';
-      font-size: 0.75rem;
-    }
+    tr.is-today { background: var(--today-bg) !important; }
+    tr.is-today td { border-bottom-color: #f0e6c0; }
+    tr.is-today .date-cell { color: var(--today-border); font-weight: 600; }
+    tr.is-today .date-cell::before { content: '📖 '; font-size: 0.75rem; }
 
-    /* 中心日期（導航用） */
-    tr.is-center td {
-      position: relative;
-    }
-
-    /* 空值 */
     .empty-cell {
       color: #ccc;
       font-style: italic;
       font-size: 0.78rem;
     }
 
-    /* ===== 載入中 ===== */
     .loading {
       text-align: center;
       padding: 60px 20px;
@@ -208,7 +173,6 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== 錯誤 ===== */
     .error-msg {
       text-align: center;
       padding: 40px 20px;
@@ -216,15 +180,11 @@
       font-size: 0.85rem;
     }
 
-    /* ===== 響應式 ===== */
     @media (max-width: 480px) {
       .header h1 { font-size: 1.15rem; letter-spacing: 2px; }
       .progress-table tbody td { font-size: 0.78rem; padding: 9px 7px; }
       .nav-btn { font-size: 0.78rem; padding: 7px 12px; }
     }
-
-    /* Google 協作平台嵌入時隱藏 header */
-    .embed-mode .header { display: none; }
   </style>
 </head>
 <body>
@@ -259,20 +219,55 @@
 
   <script>
     // ★★★ 部署後請將此 URL 替換為你的 GAS Web App URL ★★★
-    const API_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwp1TKPNTBa8lrp03Wdm29XaQjD7Bc9fcVvFTplKeNb6NjV_DNr3bLjSMsYbTCqTHpHzA/exec';
 
     let currentOffset = 0;
     let todayStr = '';
 
-    // 取得今天日期（台灣時區）
+    /** 取得台灣時區今天日期 */
     function getTodayLocal() {
       const now = new Date();
-      // 強制使用台灣時區 (UTC+8)
       const tw = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
       const yyyy = tw.getFullYear();
       const mm = String(tw.getMonth() + 1).padStart(2, '0');
       const dd = String(tw.getDate()).padStart(2, '0');
       return `${yyyy}-${mm}-${dd}`;
+    }
+
+    /** JSONP 請求：動態插入 <script> 標籤繞過 CORS */
+    function jsonpFetch(url) {
+      return new Promise((resolve, reject) => {
+        // 產生唯一 callback 名稱
+        const cbName = '_qtcb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error('請求逾時，請檢查 GAS Web App URL 是否正確'));
+        }, 15000);
+
+        // 註冊全域 callback
+        window[cbName] = function(data) {
+          clearTimeout(timeout);
+          cleanup();
+          resolve(data);
+        };
+
+        function cleanup() {
+          delete window[cbName];
+          const s = document.getElementById(cbName);
+          if (s) s.remove();
+        }
+
+        // 動態插入 script
+        const script = document.createElement('script');
+        script.id = cbName;
+        script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
+        script.onerror = () => {
+          clearTimeout(timeout);
+          cleanup();
+          reject(new Error('無法載入 API，請確認 URL 與部署設定'));
+        };
+        document.body.appendChild(script);
+      });
     }
 
     async function fetchData() {
@@ -283,8 +278,7 @@
 
       try {
         const url = `${API_URL}?date=${todayStr}&offset=${currentOffset}`;
-        const res = await fetch(url);
-        const json = await res.json();
+        const json = await jsonpFetch(url);
 
         if (!json.success) {
           contentEl.innerHTML = `<div class="error-msg">載入失敗：${json.error || '未知錯誤'}</div>`;
@@ -293,12 +287,11 @@
 
         renderTable(json.data, json.centerDate);
       } catch (err) {
-        contentEl.innerHTML = `<div class="error-msg">無法連線 API：${err.message}<br>請確認 GAS Web App 已正確部署</div>`;
+        contentEl.innerHTML = `<div class="error-msg">${escapeHtml(err.message)}</div>`;
       }
     }
 
     function renderTable(rows, centerDate) {
-      // 更新日期範圍標示
       if (rows.length > 0) {
         const first = formatDisplayDate(rows[0].date);
         const last = formatDisplayDate(rows[rows.length - 1].date);
@@ -318,10 +311,9 @@
 
       rows.forEach(row => {
         const isToday = row.date === todayStr;
-        const isCenter = row.isCenter;
         const classes = [];
         if (isToday) classes.push('is-today');
-        if (isCenter) classes.push('is-center');
+        if (row.isCenter) classes.push('is-center');
 
         const dateDisplay = formatDisplayDate(row.date);
         const qtCell = row.qt ? escapeHtml(row.qt) : '<span class="empty-cell">—</span>';
@@ -336,14 +328,12 @@
       });
 
       html += '</tbody></table>';
-      document.getElementById('content').innerHTML = html;
+      contentEl = document.getElementById('content');
+      contentEl.innerHTML = html;
 
-      // 自動捲動到今天或中心列
       setTimeout(() => {
         const target = document.querySelector('tr.is-today') || document.querySelector('tr.is-center');
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
     }
 
@@ -358,20 +348,19 @@
     }
 
     function formatDisplayDate(dateStr) {
-      // "2026-04-06" → "4/6"
       const parts = dateStr.split('-');
       return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
     }
 
     function escapeHtml(str) {
-      return str
+      return String(str)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/\n/g, '<br>');
     }
 
-    // 頁面載入
+    // 啟動
     fetchData();
   </script>
 </body>
