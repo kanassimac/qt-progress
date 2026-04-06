@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>每日靈修與速讀進度</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f5f0;
+      --card-bg: #ffffff;
+      --text: #2c2c2c;
+      --text-muted: #7a7a7a;
+      --accent: #5b7a5e;
+      --accent-light: #e8f0e8;
+      --accent-dark: #3d5a3f;
+      --today-bg: #fffbeb;
+      --today-border: #d4a843;
+      --border: #e5e2dc;
+      --shadow: 0 2px 12px rgba(0,0,0,0.06);
+      --radius: 10px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ===== 頂部標題 ===== */
+    .header {
+      background: linear-gradient(135deg, var(--accent-dark), var(--accent));
+      color: #fff;
+      padding: 28px 20px 22px;
+      text-align: center;
+      position: relative;
+    }
+    .header h1 {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+    }
+    .header .subtitle {
+      font-size: 0.78rem;
+      opacity: 0.75;
+      font-weight: 300;
+    }
+
+    /* ===== 導航列 ===== */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 16px 16px 8px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-family: 'Noto Sans TC', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .nav-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent-dark);
+      background: var(--accent-light);
+    }
+    .nav-btn:active { transform: scale(0.96); }
+    .nav-btn.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .nav-btn.primary:hover {
+      background: var(--accent-dark);
+      border-color: var(--accent-dark);
+    }
+    .nav-btn svg {
+      width: 14px; height: 14px;
+      fill: currentColor;
+    }
+
+    .date-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 6px 0 10px;
+    }
+
+    /* ===== 表格 ===== */
+    .table-wrapper {
+      padding: 0 12px 24px;
+    }
+    .progress-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    .progress-table thead th {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-dark);
+      background: var(--accent-light);
+      padding: 12px 10px;
+      text-align: left;
+      border-bottom: 2px solid var(--accent);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .progress-table thead th:first-child { padding-left: 16px; }
+
+    .progress-table tbody tr {
+      transition: background 0.15s;
+    }
+    .progress-table tbody tr:hover {
+      background: #fafaf7;
+    }
+    .progress-table tbody td {
+      padding: 11px 10px;
+      font-size: 0.82rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.55;
+    }
+    .progress-table tbody td:first-child { padding-left: 16px; }
+    .progress-table tbody tr:last-child td { border-bottom: none; }
+
+    /* 日期欄 */
+    .date-cell {
+      white-space: nowrap;
+      font-weight: 500;
+      min-width: 90px;
+    }
+    .date-cell .weekday {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-left: 4px;
+      font-weight: 400;
+    }
+
+    /* 今天高亮 */
+    tr.is-today {
+      background: var(--today-bg) !important;
+    }
+    tr.is-today td {
+      border-bottom-color: #f0e6c0;
+    }
+    tr.is-today .date-cell {
+      color: var(--today-border);
+      font-weight: 600;
+    }
+    tr.is-today .date-cell::before {
+      content: '📖 ';
+      font-size: 0.75rem;
+    }
+
+    /* 中心日期（導航用） */
+    tr.is-center td {
+      position: relative;
+    }
+
+    /* 空值 */
+    .empty-cell {
+      color: #ccc;
+      font-style: italic;
+      font-size: 0.78rem;
+    }
+
+    /* ===== 載入中 ===== */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+    .loading .spinner {
+      display: inline-block;
+      width: 28px; height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== 錯誤 ===== */
+    .error-msg {
+      text-align: center;
+      padding: 40px 20px;
+      color: #c44;
+      font-size: 0.85rem;
+    }
+
+    /* ===== 響應式 ===== */
+    @media (max-width: 480px) {
+      .header h1 { font-size: 1.15rem; letter-spacing: 2px; }
+      .progress-table tbody td { font-size: 0.78rem; padding: 9px 7px; }
+      .nav-btn { font-size: 0.78rem; padding: 7px 12px; }
+    }
+
+    /* Google 協作平台嵌入時隱藏 header */
+    .embed-mode .header { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>每日靈修與速讀進度</h1>
+    <div class="subtitle">花蓮靈糧堂 ✦ Kanas 牧師</div>
+  </div>
+
+  <div class="nav-bar">
+    <button class="nav-btn" id="btn-prev" onclick="navigate(-7)">
+      <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+      前 7 天
+    </button>
+    <button class="nav-btn primary" id="btn-today" onclick="goToday()">今天</button>
+    <button class="nav-btn" id="btn-next" onclick="navigate(7)">
+      後 7 天
+      <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+    </button>
+  </div>
+
+  <div class="date-label" id="range-label"></div>
+
+  <div class="table-wrapper">
+    <div id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <div>載入進度中…</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ★★★ 部署後請將此 URL 替換為你的 GAS Web App URL ★★★
+    const API_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
+
+    let currentOffset = 0;
+    let todayStr = '';
+
+    // 取得今天日期（台灣時區）
+    function getTodayLocal() {
+      const now = new Date();
+      // 強制使用台灣時區 (UTC+8)
+      const tw = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
+      const yyyy = tw.getFullYear();
+      const mm = String(tw.getMonth() + 1).padStart(2, '0');
+      const dd = String(tw.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    async function fetchData() {
+      const contentEl = document.getElementById('content');
+      contentEl.innerHTML = '<div class="loading"><div class="spinner"></div><div>載入進度中…</div></div>';
+
+      todayStr = getTodayLocal();
+
+      try {
+        const url = `${API_URL}?date=${todayStr}&offset=${currentOffset}`;
+        const res = await fetch(url);
+        const json = await res.json();
+
+        if (!json.success) {
+          contentEl.innerHTML = `<div class="error-msg">載入失敗：${json.error || '未知錯誤'}</div>`;
+          return;
+        }
+
+        renderTable(json.data, json.centerDate);
+      } catch (err) {
+        contentEl.innerHTML = `<div class="error-msg">無法連線 API：${err.message}<br>請確認 GAS Web App 已正確部署</div>`;
+      }
+    }
+
+    function renderTable(rows, centerDate) {
+      // 更新日期範圍標示
+      if (rows.length > 0) {
+        const first = formatDisplayDate(rows[0].date);
+        const last = formatDisplayDate(rows[rows.length - 1].date);
+        document.getElementById('range-label').textContent = `${first} — ${last}`;
+      }
+
+      let html = `
+        <table class="progress-table">
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>靈修進度</th>
+              <th>速讀進度</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+      rows.forEach(row => {
+        const isToday = row.date === todayStr;
+        const isCenter = row.isCenter;
+        const classes = [];
+        if (isToday) classes.push('is-today');
+        if (isCenter) classes.push('is-center');
+
+        const dateDisplay = formatDisplayDate(row.date);
+        const qtCell = row.qt ? escapeHtml(row.qt) : '<span class="empty-cell">—</span>';
+        const readCell = row.read ? escapeHtml(row.read) : '<span class="empty-cell">—</span>';
+
+        html += `
+          <tr class="${classes.join(' ')}">
+            <td class="date-cell">${dateDisplay}<span class="weekday">${row.weekday}</span></td>
+            <td>${qtCell}</td>
+            <td>${readCell}</td>
+          </tr>`;
+      });
+
+      html += '</tbody></table>';
+      document.getElementById('content').innerHTML = html;
+
+      // 自動捲動到今天或中心列
+      setTimeout(() => {
+        const target = document.querySelector('tr.is-today') || document.querySelector('tr.is-center');
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+
+    function navigate(days) {
+      currentOffset += days;
+      fetchData();
+    }
+
+    function goToday() {
+      currentOffset = 0;
+      fetchData();
+    }
+
+    function formatDisplayDate(dateStr) {
+      // "2026-04-06" → "4/6"
+      const parts = dateStr.split('-');
+      return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+    }
+
+    // 頁面載入
+    fetchData();
+  </script>
+</body>
+</html>
