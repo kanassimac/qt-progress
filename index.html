@@ -29,74 +29,86 @@
       min-height: 100vh;
     }
 
+    /* ===== Header ===== */
     .header {
       background: linear-gradient(135deg, var(--accent-dark), var(--accent));
       color: #fff;
-      padding: 28px 20px 22px;
+      padding: 24px 20px 18px;
       text-align: center;
     }
     .header h1 {
       font-family: 'Noto Serif TC', serif;
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       font-weight: 700;
       letter-spacing: 3px;
-      margin-bottom: 4px;
-    }
-    .header .subtitle {
-      font-size: 0.78rem;
-      opacity: 0.75;
-      font-weight: 300;
     }
 
+    /* ===== View Toggle ===== */
+    .view-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      padding: 14px 16px 4px;
+    }
+    .view-btn {
+      padding: 7px 22px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-family: 'Noto Sans TC', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .view-btn:first-child { border-radius: 18px 0 0 18px; }
+    .view-btn:last-child { border-radius: 0 18px 18px 0; }
+    .view-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ===== Nav ===== */
     .nav-bar {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 16px 16px 8px;
+      padding: 10px 16px 6px;
       flex-wrap: wrap;
     }
     .nav-btn {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 8px 16px;
+      padding: 7px 14px;
       border: 1.5px solid var(--border);
       border-radius: 20px;
       background: var(--card-bg);
       color: var(--text);
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       font-family: 'Noto Sans TC', sans-serif;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s;
       user-select: none;
     }
-    .nav-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent-dark);
-      background: var(--accent-light);
-    }
+    .nav-btn:hover { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-light); }
     .nav-btn:active { transform: scale(0.96); }
-    .nav-btn.primary {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
-    .nav-btn.primary:hover {
-      background: var(--accent-dark);
-      border-color: var(--accent-dark);
-    }
-    .nav-btn svg { width: 14px; height: 14px; fill: currentColor; }
+    .nav-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .nav-btn.primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+    .nav-btn svg { width: 13px; height: 13px; fill: currentColor; }
 
     .date-label {
       font-size: 0.8rem;
       color: var(--text-muted);
       text-align: center;
-      padding: 6px 0 10px;
+      padding: 4px 0 8px;
     }
 
-    .table-wrapper { padding: 0 12px 24px; }
+    /* ===== Week Table ===== */
+    .table-wrapper { padding: 0 12px 20px; }
 
     .progress-table {
       width: 100%;
@@ -113,75 +125,110 @@
       font-weight: 700;
       color: var(--accent-dark);
       background: var(--accent-light);
-      padding: 12px 10px;
+      padding: 11px 10px;
       text-align: left;
       border-bottom: 2px solid var(--accent);
     }
-    .progress-table thead th:first-child { padding-left: 16px; }
-
+    .progress-table thead th:first-child { padding-left: 14px; }
     .progress-table tbody tr { transition: background 0.15s; }
     .progress-table tbody tr:hover { background: #fafaf7; }
     .progress-table tbody td {
-      padding: 11px 10px;
+      padding: 10px 10px;
       font-size: 0.82rem;
       border-bottom: 1px solid var(--border);
       vertical-align: top;
-      line-height: 1.55;
+      line-height: 1.5;
     }
-    .progress-table tbody td:first-child { padding-left: 16px; }
+    .progress-table tbody td:first-child { padding-left: 14px; }
     .progress-table tbody tr:last-child td { border-bottom: none; }
 
-    .date-cell {
-      white-space: nowrap;
-      font-weight: 500;
-      min-width: 90px;
-    }
-    .date-cell .weekday {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      margin-left: 4px;
-      font-weight: 400;
-    }
+    .date-cell { white-space: nowrap; font-weight: 500; min-width: 80px; }
+    .date-cell .weekday { font-size: 0.72rem; color: var(--text-muted); margin-left: 4px; font-weight: 400; }
 
     tr.is-today { background: var(--today-bg) !important; }
     tr.is-today td { border-bottom-color: #f0e6c0; }
     tr.is-today .date-cell { color: var(--today-border); font-weight: 600; }
-    tr.is-today .date-cell::before { content: '📖 '; font-size: 0.75rem; }
+    tr.is-today .date-cell::before { content: '📖 '; font-size: 0.72rem; }
 
-    .empty-cell {
-      color: #ccc;
-      font-style: italic;
-      font-size: 0.78rem;
+    .empty-cell { color: #ccc; font-style: italic; font-size: 0.78rem; }
+
+    /* ===== Month Calendar ===== */
+    .cal-wrapper { padding: 0 12px 20px; }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
     }
+    .cal-header {
+      background: var(--accent-light);
+      padding: 8px 4px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+      font-family: 'Noto Serif TC', serif;
+    }
+    .cal-cell {
+      background: var(--card-bg);
+      padding: 6px 5px;
+      min-height: 70px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      transition: background 0.15s;
+    }
+    .cal-cell:hover { background: #fafaf7; }
+    .cal-cell.out-month { background: #f5f3ee; }
+    .cal-cell.out-month .cal-day { color: #ccc; }
+    .cal-cell.is-today { background: var(--today-bg); }
+    .cal-cell.is-today .cal-day { color: var(--today-border); font-weight: 700; }
 
+    .cal-day {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+    .cal-qt, .cal-read {
+      font-size: 0.62rem;
+      line-height: 1.35;
+      padding: 2px 3px;
+      border-radius: 3px;
+      word-break: break-all;
+    }
+    .cal-qt { background: #e8f0e8; color: #3d5a3f; }
+    .cal-read { background: #e8ecf4; color: #3a4d6e; }
+
+    /* ===== Loading ===== */
     .loading {
       text-align: center;
-      padding: 60px 20px;
+      padding: 50px 20px;
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.88rem;
     }
     .loading .spinner {
       display: inline-block;
-      width: 28px; height: 28px;
+      width: 24px; height: 24px;
       border: 3px solid var(--border);
       border-top-color: var(--accent);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 12px;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 10px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .error-msg {
-      text-align: center;
-      padding: 40px 20px;
-      color: #c44;
-      font-size: 0.85rem;
-    }
+    .error-msg { text-align: center; padding: 40px 20px; color: #c44; font-size: 0.85rem; }
 
     @media (max-width: 480px) {
-      .header h1 { font-size: 1.15rem; letter-spacing: 2px; }
-      .progress-table tbody td { font-size: 0.78rem; padding: 9px 7px; }
-      .nav-btn { font-size: 0.78rem; padding: 7px 12px; }
+      .header h1 { font-size: 1.12rem; letter-spacing: 2px; }
+      .progress-table tbody td { font-size: 0.78rem; padding: 8px 6px; }
+      .nav-btn { font-size: 0.76rem; padding: 6px 11px; }
+      .cal-cell { min-height: 58px; padding: 4px 3px; }
+      .cal-qt, .cal-read { font-size: 0.58rem; }
     }
   </style>
 </head>
@@ -189,65 +236,64 @@
 
   <div class="header">
     <h1>每日靈修與速讀進度</h1>
-    <div class="subtitle">花蓮靈糧堂 ✦ Kanas 牧師</div>
   </div>
 
-  <div class="nav-bar">
-    <button class="nav-btn" onclick="navigate(-7)">
-      <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-      前 7 天
-    </button>
-    <button class="nav-btn primary" onclick="goToday()">今天</button>
-    <button class="nav-btn" onclick="navigate(7)">
-      後 7 天
-      <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-    </button>
+  <!-- 檢視切換 -->
+  <div class="view-toggle">
+    <button class="view-btn active" id="vbtn-week" onclick="switchView('week')">一週</button>
+    <button class="view-btn" id="vbtn-month" onclick="switchView('month')">月曆</button>
   </div>
 
+  <!-- 導航列 -->
+  <div class="nav-bar" id="nav-bar"></div>
   <div class="date-label" id="range-label"></div>
 
-  <div class="table-wrapper">
-    <div id="content">
-      <div class="loading">
-        <div class="spinner"></div>
-        <div>載入進度中…</div>
-      </div>
-    </div>
+  <!-- 內容區 -->
+  <div id="content-area">
+    <div class="table-wrapper"><div id="content">
+      <div class="loading"><div class="spinner"></div><div>載入進度中…</div></div>
+    </div></div>
   </div>
 
   <script>
-    // ★★★ 請替換為你的 GAS Web App URL ★★★
     const API_URL = 'https://script.google.com/macros/s/AKfycbwp1TKPNTBa8lrp03Wdm29XaQjD7Bc9fcVvFTplKeNb6NjV_DNr3bLjSMsYbTCqTHpHzA/exec';
 
-    let currentOffset = 0;
+    // ===== 狀態 =====
+    let currentView = 'week';   // 'week' | 'month'
+    let weekOffset = 0;
+    let monthOffset = 0;        // 0 = 本月, -1 = 上月, 1 = 下月
     let todayStr = '';
+
+    // ===== 前端快取 =====
+    const localCache = {};
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 分鐘
 
     function getTodayLocal() {
       const now = new Date();
       const tw = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
-      return [
-        tw.getFullYear(),
-        String(tw.getMonth() + 1).padStart(2, '0'),
-        String(tw.getDate()).padStart(2, '0')
-      ].join('-');
+      return [tw.getFullYear(), String(tw.getMonth() + 1).padStart(2, '0'), String(tw.getDate()).padStart(2, '0')].join('-');
     }
 
+    // ===== JSONP =====
     function jsonpFetch(url) {
+      // 先查前端快取
+      const cacheEntry = localCache[url];
+      if (cacheEntry && (Date.now() - cacheEntry.ts < CACHE_DURATION)) {
+        return Promise.resolve(cacheEntry.data);
+      }
+
       return new Promise((resolve, reject) => {
-        const cbName = '_qtcb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+        const cbName = '_qcb' + Date.now() + Math.floor(Math.random() * 9999);
         const timeout = setTimeout(() => { cleanup(); reject(new Error('請求逾時')); }, 15000);
 
         window[cbName] = function(data) {
           clearTimeout(timeout);
           cleanup();
+          localCache[url] = { data, ts: Date.now() }; // 存入前端快取
           resolve(data);
         };
 
-        function cleanup() {
-          delete window[cbName];
-          const s = document.getElementById(cbName);
-          if (s) s.remove();
-        }
+        function cleanup() { delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove(); }
 
         const script = document.createElement('script');
         script.id = cbName;
@@ -257,70 +303,138 @@
       });
     }
 
-    async function fetchData() {
-      const contentEl = document.getElementById('content');
-      contentEl.innerHTML = '<div class="loading"><div class="spinner"></div><div>載入進度中…</div></div>';
-      todayStr = getTodayLocal();
+    // ===== 檢視切換 =====
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('vbtn-week').classList.toggle('active', view === 'week');
+      document.getElementById('vbtn-month').classList.toggle('active', view === 'month');
+      if (view === 'week') { weekOffset = 0; }
+      else { monthOffset = 0; }
+      renderNav();
+      fetchData();
+    }
 
-      try {
-        const url = `${API_URL}?start=${todayStr}&offset=${currentOffset}`;
-        const json = await jsonpFetch(url);
+    function renderNav() {
+      const nav = document.getElementById('nav-bar');
+      const arrowL = '<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
+      const arrowR = '<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>';
 
-        if (!json.success) {
-          contentEl.innerHTML = `<div class="error-msg">載入失敗：${json.error || '未知錯誤'}</div>`;
-          return;
-        }
-        renderTable(json.data);
-      } catch (err) {
-        contentEl.innerHTML = `<div class="error-msg">${escapeHtml(err.message)}</div>`;
+      if (currentView === 'week') {
+        nav.innerHTML = `
+          <button class="nav-btn" onclick="navWeek(-7)">${arrowL} 前 7 天</button>
+          <button class="nav-btn primary" onclick="navWeek(0)">今天</button>
+          <button class="nav-btn" onclick="navWeek(7)">後 7 天 ${arrowR}</button>`;
+      } else {
+        nav.innerHTML = `
+          <button class="nav-btn" onclick="navMonth(-1)">${arrowL} 上個月</button>
+          <button class="nav-btn primary" onclick="navMonth(0)">本月</button>
+          <button class="nav-btn" onclick="navMonth(1)">下個月 ${arrowR}</button>`;
       }
     }
 
-    function renderTable(rows) {
+    function navWeek(n) {
+      if (n === 0) weekOffset = 0;
+      else weekOffset += n;
+      fetchData();
+    }
+    function navMonth(n) {
+      if (n === 0) monthOffset = 0;
+      else monthOffset += n;
+      fetchData();
+    }
+
+    // ===== 資料請求 =====
+    async function fetchData() {
+      const contentArea = document.getElementById('content-area');
+      contentArea.innerHTML = '<div class="table-wrapper"><div class="loading"><div class="spinner"></div><div>載入進度中…</div></div></div>';
+      todayStr = getTodayLocal();
+
+      try {
+        let url;
+        if (currentView === 'week') {
+          url = `${API_URL}?start=${todayStr}&offset=${weekOffset}`;
+        } else {
+          // 計算目標月份
+          const now = new Date();
+          const tw = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
+          tw.setMonth(tw.getMonth() + monthOffset);
+          const ym = tw.getFullYear() + '-' + String(tw.getMonth() + 1).padStart(2, '0');
+          url = `${API_URL}?month=${ym}`;
+        }
+
+        const json = await jsonpFetch(url);
+        if (!json.success) {
+          contentArea.innerHTML = `<div class="table-wrapper"><div class="error-msg">載入失敗：${json.error || '未知錯誤'}</div></div>`;
+          return;
+        }
+
+        if (json.mode === 'month') renderMonth(json);
+        else renderWeek(json.data);
+
+      } catch (err) {
+        contentArea.innerHTML = `<div class="table-wrapper"><div class="error-msg">${esc(err.message)}</div></div>`;
+      }
+    }
+
+    // ===== 週檢視 =====
+    function renderWeek(rows) {
       if (rows.length > 0) {
-        const first = formatDisplayDate(rows[0].date);
-        const last = formatDisplayDate(rows[rows.length - 1].date);
-        document.getElementById('range-label').textContent = `${first} — ${last}`;
+        document.getElementById('range-label').textContent =
+          `${fmtDate(rows[0].date)} — ${fmtDate(rows[rows.length - 1].date)}`;
       }
 
-      let html = `
-        <table class="progress-table">
-          <thead><tr>
-            <th>日期</th>
-            <th>靈修進度</th>
-            <th>速讀進度</th>
-          </tr></thead>
-          <tbody>`;
+      let html = `<div class="table-wrapper"><table class="progress-table">
+        <thead><tr><th>日期</th><th>靈修進度</th><th>速讀進度</th></tr></thead><tbody>`;
 
       rows.forEach(row => {
         const isToday = row.date === todayStr;
         const cls = isToday ? ' class="is-today"' : '';
-        const qt = row.qt ? escapeHtml(row.qt) : '<span class="empty-cell">—</span>';
-        const rd = row.read ? escapeHtml(row.read) : '<span class="empty-cell">—</span>';
-
+        const qt = row.qt ? esc(row.qt) : '<span class="empty-cell">—</span>';
+        const rd = row.read ? esc(row.read) : '<span class="empty-cell">—</span>';
         html += `<tr${cls}>
-          <td class="date-cell">${formatDisplayDate(row.date)}<span class="weekday">${row.weekday}</span></td>
-          <td>${qt}</td>
-          <td>${rd}</td>
-        </tr>`;
+          <td class="date-cell">${fmtDate(row.date)}<span class="weekday">${row.weekday}</span></td>
+          <td>${qt}</td><td>${rd}</td></tr>`;
       });
 
-      html += '</tbody></table>';
-      document.getElementById('content').innerHTML = html;
+      html += '</tbody></table></div>';
+      document.getElementById('content-area').innerHTML = html;
     }
 
-    function navigate(days) { currentOffset += days; fetchData(); }
-    function goToday() { currentOffset = 0; fetchData(); }
+    // ===== 月曆檢視 =====
+    function renderMonth(json) {
+      const { year, month, data } = json;
+      document.getElementById('range-label').textContent = `${year} 年 ${month} 月`;
 
-    function formatDisplayDate(dateStr) {
-      const p = dateStr.split('-');
-      return `${parseInt(p[1])}/${parseInt(p[2])}`;
+      const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+      let html = '<div class="cal-wrapper"><div class="cal-grid">';
+
+      // 星期標頭
+      weekdays.forEach(w => { html += `<div class="cal-header">${w}</div>`; });
+
+      // 日期格
+      data.forEach(cell => {
+        const classes = ['cal-cell'];
+        if (!cell.inMonth) classes.push('out-month');
+        if (cell.date === todayStr) classes.push('is-today');
+
+        let inner = `<div class="cal-day">${cell.day}</div>`;
+        if (cell.qt) inner += `<div class="cal-qt">${esc(cell.qt)}</div>`;
+        if (cell.read) inner += `<div class="cal-read">${esc(cell.read)}</div>`;
+
+        html += `<div class="${classes.join(' ')}">${inner}</div>`;
+      });
+
+      html += '</div></div>';
+      document.getElementById('content-area').innerHTML = html;
     }
 
-    function escapeHtml(str) {
-      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-    }
+    // ===== Utils =====
+    function fmtDate(s) { const p = s.split('-'); return `${parseInt(p[1])}/${parseInt(p[2])}`; }
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>'); }
 
+    // ===== Init =====
+    todayStr = getTodayLocal();
+    renderNav();
     fetchData();
   </script>
 </body>
