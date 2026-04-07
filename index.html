@@ -29,7 +29,6 @@
       min-height: 100vh;
     }
 
-    /* ===== Header ===== */
     .header {
       background: linear-gradient(135deg, var(--accent-dark), var(--accent));
       color: #fff;
@@ -43,7 +42,6 @@
       letter-spacing: 3px;
     }
 
-    /* ===== View Toggle ===== */
     .view-toggle {
       display: flex;
       justify-content: center;
@@ -63,13 +61,8 @@
     }
     .view-btn:first-child { border-radius: 18px 0 0 18px; }
     .view-btn:last-child { border-radius: 0 18px 18px 0; }
-    .view-btn.active {
-      background: var(--accent);
-      color: #fff;
-      border-color: var(--accent);
-    }
+    .view-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-    /* ===== Nav ===== */
     .nav-bar {
       display: flex;
       align-items: center;
@@ -152,6 +145,13 @@
 
     .empty-cell { color: #ccc; font-style: italic; font-size: 0.78rem; }
 
+    /* 手機：章節換行標記 */
+    .chapter-br { display: none; }
+    @media (max-width: 600px) {
+      .chapter-br { display: inline; }
+      .chapter-sep { display: none; }
+    }
+
     /* ===== Month Calendar ===== */
     .cal-wrapper { padding: 0 12px 20px; }
     .cal-grid {
@@ -187,12 +187,7 @@
     .cal-cell.is-today { background: var(--today-bg); }
     .cal-cell.is-today .cal-day { color: var(--today-border); font-weight: 700; }
 
-    .cal-day {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 2px;
-    }
+    .cal-day { font-size: 0.75rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
     .cal-qt, .cal-read {
       font-size: 0.62rem;
       line-height: 1.35;
@@ -203,7 +198,6 @@
     .cal-qt { background: #e8f0e8; color: #3d5a3f; }
     .cal-read { background: #e8ecf4; color: #3a4d6e; }
 
-    /* ===== Loading ===== */
     .loading {
       text-align: center;
       padding: 50px 20px;
@@ -238,17 +232,14 @@
     <h1>每日靈修與速讀進度</h1>
   </div>
 
-  <!-- 檢視切換 -->
   <div class="view-toggle">
     <button class="view-btn active" id="vbtn-week" onclick="switchView('week')">一週</button>
     <button class="view-btn" id="vbtn-month" onclick="switchView('month')">月曆</button>
   </div>
 
-  <!-- 導航列 -->
   <div class="nav-bar" id="nav-bar"></div>
   <div class="date-label" id="range-label"></div>
 
-  <!-- 內容區 -->
   <div id="content-area">
     <div class="table-wrapper"><div id="content">
       <div class="loading"><div class="spinner"></div><div>載入進度中…</div></div>
@@ -258,15 +249,27 @@
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwp1TKPNTBa8lrp03Wdm29XaQjD7Bc9fcVvFTplKeNb6NjV_DNr3bLjSMsYbTCqTHpHzA/exec';
 
-    // ===== 狀態 =====
-    let currentView = 'week';   // 'week' | 'month'
+    let currentView = 'week';
     let weekOffset = 0;
-    let monthOffset = 0;        // 0 = 本月, -1 = 上月, 1 = 下月
+    let monthOffset = 0;
     let todayStr = '';
+    let isMobile = window.innerWidth <= 600;
+
+    // 監聽視窗變化
+    window.addEventListener('resize', () => {
+      const wasMobile = isMobile;
+      isMobile = window.innerWidth <= 600;
+      if (wasMobile !== isMobile && lastData) {
+        // 裝置寬度變化時重新渲染（不重新請求）
+        if (currentView === 'week') renderWeek(lastData);
+      }
+    });
+
+    let lastData = null; // 快取最近一次的渲染資料
 
     // ===== 前端快取 =====
     const localCache = {};
-    const CACHE_DURATION = 5 * 60 * 1000; // 5 分鐘
+    const CACHE_DURATION = 5 * 60 * 1000;
 
     function getTodayLocal() {
       const now = new Date();
@@ -274,27 +277,20 @@
       return [tw.getFullYear(), String(tw.getMonth() + 1).padStart(2, '0'), String(tw.getDate()).padStart(2, '0')].join('-');
     }
 
-    // ===== JSONP =====
     function jsonpFetch(url) {
-      // 先查前端快取
-      const cacheEntry = localCache[url];
-      if (cacheEntry && (Date.now() - cacheEntry.ts < CACHE_DURATION)) {
-        return Promise.resolve(cacheEntry.data);
+      const entry = localCache[url];
+      if (entry && (Date.now() - entry.ts < CACHE_DURATION)) {
+        return Promise.resolve(entry.data);
       }
-
       return new Promise((resolve, reject) => {
         const cbName = '_qcb' + Date.now() + Math.floor(Math.random() * 9999);
         const timeout = setTimeout(() => { cleanup(); reject(new Error('請求逾時')); }, 15000);
-
         window[cbName] = function(data) {
-          clearTimeout(timeout);
-          cleanup();
-          localCache[url] = { data, ts: Date.now() }; // 存入前端快取
+          clearTimeout(timeout); cleanup();
+          localCache[url] = { data, ts: Date.now() };
           resolve(data);
         };
-
         function cleanup() { delete window[cbName]; const s = document.getElementById(cbName); if (s) s.remove(); }
-
         const script = document.createElement('script');
         script.id = cbName;
         script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
@@ -303,50 +299,70 @@
       });
     }
 
-    // ===== 檢視切換 =====
+    // ===== 文字格式化 =====
+
+    /**
+     * 靈修進度：手機上在書名與章節之間換行
+     * 例：「撒母耳記下11:14-27」→「撒母耳記下<br>11:14-27」
+     * 規則：在中文字後緊接數字之間插入換行
+     */
+    function fmtQt(str) {
+      if (!str) return '<span class="empty-cell">—</span>';
+      let s = esc(str);
+      if (isMobile) {
+        // 在中文字元後面緊接的數字前插入 <br>
+        s = s.replace(/([\u4e00-\u9fff\u3400-\u4dbf])(\d)/g, '$1<br>$2');
+      }
+      return s;
+    }
+
+    /**
+     * 速讀進度：手機上「、」改為換行
+     * 例：「約珥書2~3、阿摩司書1~3」→「約珥書2~3<br>阿摩司書1~3」
+     */
+    function fmtRead(str) {
+      if (!str) return '<span class="empty-cell">—</span>';
+      let s = esc(str);
+      if (isMobile) {
+        s = s.replace(/、/g, '<br>');
+      }
+      return s;
+    }
+
+    // ===== View =====
     function switchView(view) {
       currentView = view;
       document.getElementById('vbtn-week').classList.toggle('active', view === 'week');
       document.getElementById('vbtn-month').classList.toggle('active', view === 'month');
-      if (view === 'week') { weekOffset = 0; }
-      else { monthOffset = 0; }
+      if (view === 'week') weekOffset = 0; else monthOffset = 0;
       renderNav();
       fetchData();
     }
 
     function renderNav() {
       const nav = document.getElementById('nav-bar');
-      const arrowL = '<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
-      const arrowR = '<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>';
-
+      const aL = '<svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
+      const aR = '<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>';
       if (currentView === 'week') {
         nav.innerHTML = `
-          <button class="nav-btn" onclick="navWeek(-7)">${arrowL} 前 7 天</button>
+          <button class="nav-btn" onclick="navWeek(-7)">${aL} 前 7 天</button>
           <button class="nav-btn primary" onclick="navWeek(0)">今天</button>
-          <button class="nav-btn" onclick="navWeek(7)">後 7 天 ${arrowR}</button>`;
+          <button class="nav-btn" onclick="navWeek(7)">後 7 天 ${aR}</button>`;
       } else {
         nav.innerHTML = `
-          <button class="nav-btn" onclick="navMonth(-1)">${arrowL} 上個月</button>
+          <button class="nav-btn" onclick="navMonth(-1)">${aL} 上個月</button>
           <button class="nav-btn primary" onclick="navMonth(0)">本月</button>
-          <button class="nav-btn" onclick="navMonth(1)">下個月 ${arrowR}</button>`;
+          <button class="nav-btn" onclick="navMonth(1)">下個月 ${aR}</button>`;
       }
     }
 
-    function navWeek(n) {
-      if (n === 0) weekOffset = 0;
-      else weekOffset += n;
-      fetchData();
-    }
-    function navMonth(n) {
-      if (n === 0) monthOffset = 0;
-      else monthOffset += n;
-      fetchData();
-    }
+    function navWeek(n) { if (n === 0) weekOffset = 0; else weekOffset += n; fetchData(); }
+    function navMonth(n) { if (n === 0) monthOffset = 0; else monthOffset += n; fetchData(); }
 
-    // ===== 資料請求 =====
+    // ===== Fetch =====
     async function fetchData() {
-      const contentArea = document.getElementById('content-area');
-      contentArea.innerHTML = '<div class="table-wrapper"><div class="loading"><div class="spinner"></div><div>載入進度中…</div></div></div>';
+      const area = document.getElementById('content-area');
+      area.innerHTML = '<div class="table-wrapper"><div class="loading"><div class="spinner"></div><div>載入進度中…</div></div></div>';
       todayStr = getTodayLocal();
 
       try {
@@ -354,7 +370,6 @@
         if (currentView === 'week') {
           url = `${API_URL}?start=${todayStr}&offset=${weekOffset}`;
         } else {
-          // 計算目標月份
           const now = new Date();
           const tw = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
           tw.setMonth(tw.getMonth() + monthOffset);
@@ -364,19 +379,19 @@
 
         const json = await jsonpFetch(url);
         if (!json.success) {
-          contentArea.innerHTML = `<div class="table-wrapper"><div class="error-msg">載入失敗：${json.error || '未知錯誤'}</div></div>`;
+          area.innerHTML = `<div class="table-wrapper"><div class="error-msg">載入失敗：${json.error || '未知錯誤'}</div></div>`;
           return;
         }
 
-        if (json.mode === 'month') renderMonth(json);
-        else renderWeek(json.data);
+        if (json.mode === 'month') { lastData = null; renderMonth(json); }
+        else { lastData = json.data; renderWeek(json.data); }
 
       } catch (err) {
-        contentArea.innerHTML = `<div class="table-wrapper"><div class="error-msg">${esc(err.message)}</div></div>`;
+        area.innerHTML = `<div class="table-wrapper"><div class="error-msg">${esc(err.message)}</div></div>`;
       }
     }
 
-    // ===== 週檢視 =====
+    // ===== Render Week =====
     function renderWeek(rows) {
       if (rows.length > 0) {
         document.getElementById('range-label').textContent =
@@ -389,29 +404,25 @@
       rows.forEach(row => {
         const isToday = row.date === todayStr;
         const cls = isToday ? ' class="is-today"' : '';
-        const qt = row.qt ? esc(row.qt) : '<span class="empty-cell">—</span>';
-        const rd = row.read ? esc(row.read) : '<span class="empty-cell">—</span>';
         html += `<tr${cls}>
           <td class="date-cell">${fmtDate(row.date)}<span class="weekday">${row.weekday}</span></td>
-          <td>${qt}</td><td>${rd}</td></tr>`;
+          <td>${fmtQt(row.qt)}</td>
+          <td>${fmtRead(row.read)}</td></tr>`;
       });
 
       html += '</tbody></table></div>';
       document.getElementById('content-area').innerHTML = html;
     }
 
-    // ===== 月曆檢視 =====
+    // ===== Render Month =====
     function renderMonth(json) {
       const { year, month, data } = json;
       document.getElementById('range-label').textContent = `${year} 年 ${month} 月`;
 
       const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
       let html = '<div class="cal-wrapper"><div class="cal-grid">';
-
-      // 星期標頭
       weekdays.forEach(w => { html += `<div class="cal-header">${w}</div>`; });
 
-      // 日期格
       data.forEach(cell => {
         const classes = ['cal-cell'];
         if (!cell.inMonth) classes.push('out-month');
