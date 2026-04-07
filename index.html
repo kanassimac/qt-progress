@@ -21,9 +21,7 @@
       --shadow: 0 2px 12px rgba(0,0,0,0.06);
       --radius: 10px;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'Noto Sans TC', sans-serif;
       background: var(--bg);
@@ -195,12 +193,12 @@
   </div>
 
   <div class="nav-bar">
-    <button class="nav-btn" id="btn-prev" onclick="navigate(-7)">
+    <button class="nav-btn" onclick="navigate(-7)">
       <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
       前 7 天
     </button>
-    <button class="nav-btn primary" id="btn-today" onclick="goToday()">今天</button>
-    <button class="nav-btn" id="btn-next" onclick="navigate(7)">
+    <button class="nav-btn primary" onclick="goToday()">今天</button>
+    <button class="nav-btn" onclick="navigate(7)">
       後 7 天
       <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
     </button>
@@ -218,33 +216,27 @@
   </div>
 
   <script>
-    // ★★★ 部署後請將此 URL 替換為你的 GAS Web App URL ★★★
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwp1TKPNTBa8lrp03Wdm29XaQjD7Bc9fcVvFTplKeNb6NjV_DNr3bLjSMsYbTCqTHpHzA/exec';
+    // ★★★ 請替換為你的 GAS Web App URL ★★★
+    const API_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
 
     let currentOffset = 0;
     let todayStr = '';
 
-    /** 取得台灣時區今天日期 */
     function getTodayLocal() {
       const now = new Date();
       const tw = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
-      const yyyy = tw.getFullYear();
-      const mm = String(tw.getMonth() + 1).padStart(2, '0');
-      const dd = String(tw.getDate()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;
+      return [
+        tw.getFullYear(),
+        String(tw.getMonth() + 1).padStart(2, '0'),
+        String(tw.getDate()).padStart(2, '0')
+      ].join('-');
     }
 
-    /** JSONP 請求：動態插入 <script> 標籤繞過 CORS */
     function jsonpFetch(url) {
       return new Promise((resolve, reject) => {
-        // 產生唯一 callback 名稱
         const cbName = '_qtcb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
-        const timeout = setTimeout(() => {
-          cleanup();
-          reject(new Error('請求逾時，請檢查 GAS Web App URL 是否正確'));
-        }, 15000);
+        const timeout = setTimeout(() => { cleanup(); reject(new Error('請求逾時')); }, 15000);
 
-        // 註冊全域 callback
         window[cbName] = function(data) {
           clearTimeout(timeout);
           cleanup();
@@ -257,15 +249,10 @@
           if (s) s.remove();
         }
 
-        // 動態插入 script
         const script = document.createElement('script');
         script.id = cbName;
         script.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cbName;
-        script.onerror = () => {
-          clearTimeout(timeout);
-          cleanup();
-          reject(new Error('無法載入 API，請確認 URL 與部署設定'));
-        };
+        script.onerror = () => { clearTimeout(timeout); cleanup(); reject(new Error('無法載入 API')); };
         document.body.appendChild(script);
       });
     }
@@ -273,25 +260,23 @@
     async function fetchData() {
       const contentEl = document.getElementById('content');
       contentEl.innerHTML = '<div class="loading"><div class="spinner"></div><div>載入進度中…</div></div>';
-
       todayStr = getTodayLocal();
 
       try {
-        const url = `${API_URL}?date=${todayStr}&offset=${currentOffset}`;
+        const url = `${API_URL}?start=${todayStr}&offset=${currentOffset}`;
         const json = await jsonpFetch(url);
 
         if (!json.success) {
           contentEl.innerHTML = `<div class="error-msg">載入失敗：${json.error || '未知錯誤'}</div>`;
           return;
         }
-
-        renderTable(json.data, json.centerDate);
+        renderTable(json.data);
       } catch (err) {
         contentEl.innerHTML = `<div class="error-msg">${escapeHtml(err.message)}</div>`;
       }
     }
 
-    function renderTable(rows, centerDate) {
+    function renderTable(rows) {
       if (rows.length > 0) {
         const first = formatDisplayDate(rows[0].date);
         const last = formatDisplayDate(rows[rows.length - 1].date);
@@ -300,67 +285,42 @@
 
       let html = `
         <table class="progress-table">
-          <thead>
-            <tr>
-              <th>日期</th>
-              <th>靈修進度</th>
-              <th>速讀進度</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th>日期</th>
+            <th>靈修進度</th>
+            <th>速讀進度</th>
+          </tr></thead>
           <tbody>`;
 
       rows.forEach(row => {
         const isToday = row.date === todayStr;
-        const classes = [];
-        if (isToday) classes.push('is-today');
-        if (row.isCenter) classes.push('is-center');
+        const cls = isToday ? ' class="is-today"' : '';
+        const qt = row.qt ? escapeHtml(row.qt) : '<span class="empty-cell">—</span>';
+        const rd = row.read ? escapeHtml(row.read) : '<span class="empty-cell">—</span>';
 
-        const dateDisplay = formatDisplayDate(row.date);
-        const qtCell = row.qt ? escapeHtml(row.qt) : '<span class="empty-cell">—</span>';
-        const readCell = row.read ? escapeHtml(row.read) : '<span class="empty-cell">—</span>';
-
-        html += `
-          <tr class="${classes.join(' ')}">
-            <td class="date-cell">${dateDisplay}<span class="weekday">${row.weekday}</span></td>
-            <td>${qtCell}</td>
-            <td>${readCell}</td>
-          </tr>`;
+        html += `<tr${cls}>
+          <td class="date-cell">${formatDisplayDate(row.date)}<span class="weekday">${row.weekday}</span></td>
+          <td>${qt}</td>
+          <td>${rd}</td>
+        </tr>`;
       });
 
       html += '</tbody></table>';
-      contentEl = document.getElementById('content');
-      contentEl.innerHTML = html;
-
-      setTimeout(() => {
-        const target = document.querySelector('tr.is-today') || document.querySelector('tr.is-center');
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
+      document.getElementById('content').innerHTML = html;
     }
 
-    function navigate(days) {
-      currentOffset += days;
-      fetchData();
-    }
-
-    function goToday() {
-      currentOffset = 0;
-      fetchData();
-    }
+    function navigate(days) { currentOffset += days; fetchData(); }
+    function goToday() { currentOffset = 0; fetchData(); }
 
     function formatDisplayDate(dateStr) {
-      const parts = dateStr.split('-');
-      return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
+      const p = dateStr.split('-');
+      return `${parseInt(p[1])}/${parseInt(p[2])}`;
     }
 
     function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br>');
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
     }
 
-    // 啟動
     fetchData();
   </script>
 </body>
