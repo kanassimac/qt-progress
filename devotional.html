@@ -1,109 +1,17 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>每日靈修</title>
   <style>
-    body {
-      font-family: "Microsoft JhengHei", sans-serif;
-      padding: 15px;
-      line-height: 1.9;
-      color: #333;
-      background: #fdfcf9;
-    }
-    .container {
-      width: 100%;
-      max-width: 650px;
-      margin: auto;
-    }
-    select {
-      width: 100%;
-      padding: 12px;
-      border: 1.5px solid #7c6bb5;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-bottom: 25px;
-      background: #f9f8ff;
-      color: #333;
-    }
-    .main-title {
-      color: #5b4dbd;
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: bold;
-      margin-bottom: 28px;
-      letter-spacing: 0.05em;
-    }
-    .section-header {
-      color: #5b4dbd;
-      font-weight: bold;
-      text-align: center;
-      margin: 32px 0 12px;
-      font-size: 1.1rem;
-      letter-spacing: 0.08em;
-    }
-    .section-header::before,
-    .section-header::after {
-      content: "  ·  ";
-      color: #b0a8d8;
-    }
-    .content-box {
-      white-space: pre-wrap;
-      margin-bottom: 20px;
-      text-align: justify;
-      font-size: 1.05rem;
-    }
-    /* ── 新格式（羅馬書）專用 ── */
-    #col3.new {
-      font-size: 0.98rem;
-      line-height: 1.85;
-      color: #444;
-      background: #f4f2fb;
-      border-left: 3px solid #b0a8d8;
-      padding: 14px 16px;
-      border-radius: 6px;
-    }
-    #col4.new {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #5b4dbd;
-      text-align: center;
-      line-height: 2;
-      letter-spacing: 0.04em;
-      padding: 8px 0;
-      white-space: normal;
-    }
-    #col6.new {
-      font-size: 1.05rem;
-      line-height: 2;
-      color: #333;
-    }
-    #col7.new {
-      font-size: 1.08rem;
-      font-style: italic;
-      color: #4a3a9a;
-      text-align: center;
-      line-height: 2;
-      padding: 10px 0 30px;
-      white-space: normal;
-    }
-    /* ── 舊格式（撒母耳記下）專用 ── */
-    #col3.old {
-      font-size: 0.98rem;
-      line-height: 1.85;
-      color: #444;
-      background: #f6f6f6;
-      border-left: 3px solid #aaa;
-      padding: 14px 16px;
-      border-radius: 6px;
-    }
-    #col4.old { font-size: 1.0rem; color: #444; }
-    #col5.old { font-weight: bold; font-size: 1.0rem; color: #333; }
-    #col6.old { font-size: 1.05rem; line-height: 2; color: #333; }
-    #col7.old { font-size: 1.0rem; font-style: italic; color: #555; padding-bottom: 30px; }
-    /* ── 讀取中 ── */
-    #loading { text-align: center; margin-top: 100px; color: #999; font-size: 1rem; }
+    body { font-family: "Microsoft JhengHei", sans-serif; padding: 15px; line-height: 1.8; color: #333; }
+    .container { width: 100%; max-width: 650px; margin: auto; }
+    select { width: 100%; padding: 12px; border: 1.5px solid #0044bb; border-radius: 8px; font-size: 16px; margin-bottom: 25px; background: #f9f9ff; }
+    .main-title { color: #5b4dbd; text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 20px; }
+    .section-header { color: #0000ff; font-weight: bold; text-align: center; margin: 30px 0 10px; font-size: 1.25rem; }
+    .section-header::before, .section-header::after { content: " － "; }
+    .content-box { white-space: pre-wrap; margin-bottom: 25px; text-align: justify; font-size: 1.05rem; }
+    /* #標題樣式：紫色、粗體、置中 */
+    .sharing-title { color: #6B46C1; font-weight: bold; font-size: 1.25rem; text-align: center; display: block; margin: 5px 0 0 0; }
+    #loading { text-align: center; margin-top: 100px; color: #888; }
     .hidden { display: none; }
   </style>
 </head>
@@ -113,99 +21,92 @@
     <div id="loading">讀取中...</div>
     <div id="contentArea" class="hidden">
       <h1 id="title" class="main-title"></h1>
-      <div id="header3" class="section-header"></div>
-      <div id="col3" class="content-box"></div>
-      <div id="header4" class="section-header"></div>
-      <div id="col4" class="content-box"></div>
-      <div id="header5" class="section-header"></div>
-      <div id="col5" class="content-box"></div>
-      <div id="header6" class="section-header"></div>
-      <div id="col6" class="content-box"></div>
-      <div id="header7" class="section-header"></div>
-      <div id="col7" class="content-box"></div>
+
+      <!-- 舊格式區塊（撒母耳記下）-->
+      <div id="old-blocks">
+        <div class="section-header">讀經</div><div id="read" class="content-box"></div>
+        <div class="section-header">經文摘要</div><div id="summary" class="content-box"></div>
+        <div class="section-header">從經文來認識神的屬性</div><div id="attr" class="content-box" style="font-weight:bold;"></div>
+        <div class="section-header">靈修分享</div><div id="sharing" class="content-box"></div>
+        <div class="section-header">禱告</div><div id="prayer" class="content-box"></div>
+      </div>
+
+      <!-- 新格式區塊（羅馬書）-->
+      <div id="new-blocks" class="hidden">
+        <div class="section-header">今日經文</div><div id="n-read" class="content-box"></div>
+        <div class="section-header">停在這裡</div><div id="n-pause" class="content-box"></div>
+        <div class="section-header">靠近一點</div><div id="n-closer" class="content-box"></div>
+        <div class="section-header">留給你的</div><div id="n-leave" class="content-box"></div>
+      </div>
     </div>
   </div>
 
   <script>
     var GAS_URL = 'https://script.google.com/macros/s/AKfycby4Escc36efiMcLjHEl0visU84pYBsHNky4SI8pBJ2Y34og5wViIVT6IOY5mD0S5LXi/exec';
 
-    var LABELS = {
-      new: { h3: "今日經文", h4: "停在這裡", h5: "", h6: "靠近一點", h7: "留給你的" },
-      old: { h3: "讀經",     h4: "經文摘要", h5: "從經文來認識神的屬性", h6: "靈修分享", h7: "禱告" }
-    };
-
     function load(d) {
       document.getElementById('contentArea').classList.add('hidden');
       document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('loading').innerText = '讀取中...';
 
-      var url = GAS_URL + '?action=getData' + (d ? '&date=' + encodeURIComponent(d) : '');
+      var old = document.getElementById('jsonp-script');
+      if (old) old.parentNode.removeChild(old);
 
-      fetch(url)
-        .then(function(r) { return r.json(); })
-        .then(function(res) {
-          document.getElementById('loading').classList.add('hidden');
-          document.getElementById('contentArea').classList.remove('hidden');
+      window._gasCallback = function(res) {
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('contentArea').classList.remove('hidden');
 
-          // 日期選單（只在第一次建立）
-          var picker = document.getElementById('datePicker');
-          if (picker.options.length === 0) {
-            res.dateList.forEach(function(item) {
-              var opt = document.createElement('option');
-              opt.value = item.val;
-              opt.text = item.label;
-              if (item.val === res.currentDate) opt.selected = true;
-              picker.appendChild(opt);
-            });
+        var picker = document.getElementById('datePicker');
+        if (picker.options.length === 0) {
+          res.dateList.forEach(function(item) {
+            var opt = document.createElement('option');
+            opt.value = item.val; opt.text = item.label;
+            if (item.val === res.currentDate) opt.selected = true;
+            picker.appendChild(opt);
+          });
+        }
+
+        if (res.content) {
+          document.getElementById('title').innerText = res.content.title;
+
+          if (res.isNewFormat) {
+            document.getElementById('old-blocks').classList.add('hidden');
+            document.getElementById('new-blocks').classList.remove('hidden');
+            document.getElementById('n-read').innerText    = res.content.col3 || '';
+            document.getElementById('n-pause').innerText   = res.content.col4 || '';
+            document.getElementById('n-closer').innerText  = res.content.col6 || '';
+            document.getElementById('n-leave').innerText   = res.content.col7 || '';
+          } else {
+            document.getElementById('new-blocks').classList.add('hidden');
+            document.getElementById('old-blocks').classList.remove('hidden');
+            document.getElementById('read').innerText    = res.content.col3 || '';
+            document.getElementById('summary').innerText = res.content.col4 || '';
+            document.getElementById('attr').innerText    = res.content.col5 || '';
+            document.getElementById('sharing').innerHTML = formatSharing(res.content.col6);
+            document.getElementById('prayer').innerText  = res.content.col7 || '';
           }
+        }
+      };
 
-          if (res.content) {
-            var fmt = res.isNewFormat ? 'new' : 'old';
-            var labels = LABELS[fmt];
+      var url = GAS_URL
+        + '?action=getData'
+        + (d ? '&date=' + encodeURIComponent(d) : '')
+        + '&callback=_gasCallback';
 
-            document.getElementById('title').innerText = res.content.title || '';
-
-            document.getElementById('header3').innerText = labels.h3;
-            document.getElementById('header4').innerText = labels.h4;
-            document.getElementById('header5').innerText = labels.h5;
-            document.getElementById('header6').innerText = labels.h6;
-            document.getElementById('header7').innerText = labels.h7;
-
-            // col5：新格式隱藏
-            document.getElementById('header5').style.display = res.isNewFormat ? 'none' : '';
-            document.getElementById('col5').style.display    = res.isNewFormat ? 'none' : '';
-
-            // 套用格式 class
-            ['col3','col4','col5','col6','col7'].forEach(function(id) {
-              var el = document.getElementById(id);
-              el.classList.remove('new', 'old');
-              el.classList.add(fmt);
-            });
-
-            document.getElementById('col3').innerText = res.content.col3 || '';
-            document.getElementById('col4').innerText = res.content.col4 || '';
-            document.getElementById('col5').innerText = res.content.col5 || '';
-            document.getElementById('col6').innerHTML = formatSharing(res.content.col6, res.isNewFormat);
-            document.getElementById('col7').innerHTML = formatText(res.content.col7);
-          }
-        })
-        .catch(function(err) {
-          document.getElementById('loading').innerText = '讀取失敗，請重新整理。';
-          console.error(err);
-        });
+      var script = document.createElement('script');
+      script.id = 'jsonp-script';
+      script.src = url;
+      script.onerror = function() {
+        document.getElementById('loading').innerText = '讀取失敗，請重新整理。';
+      };
+      document.head.appendChild(script);
     }
 
-    function formatSharing(text, isNew) {
-      if (!text) return '';
-      if (isNew) return formatText(text);
-      return text.trim().replace(/\n/g, '<br>').replace(
-        /(#[^<]+)/,
-        '<span style="color:#6B46C1;font-weight:bold;font-size:1.15rem;display:block;text-align:center;margin-bottom:8px;">$1</span>'
-      );
-    }
-
-    function formatText(text) {
-      if (!text) return '';
-      return text.trim().replace(/\n/g, '<br>');
+    function formatSharing(text) {
+      if (!text) return "";
+      return text.trim().replace(/#.*/, function(match) {
+        return '<span class="sharing-title">' + match + '</span>';
+      }).replace(/<\/span>\s*\n+/, '</span>');
     }
 
     window.onload = function() { load(null); };
